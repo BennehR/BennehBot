@@ -114,8 +114,25 @@ def lodeCheck(server, firstName, secondName):
             charFC = soup.find('div', {"class" : "character__freecompany__name"}).find('h4').text
         except:
             charFC = 'None'
+
+        classGroup = ''
+        classNames = soup.find_all('img', {"class" : "js__tooltip"})
+
+        for classes in classNames:
+            tooltip = classes.attrs['data-tooltip']
+            classLevel = str(classes.nextSibling).strip()
+            classGroup = classGroup + tooltip + ": " + classLevel + "\n"
         
-        return(charName + "\nCharacter title: " + charTitle + "\nCharacter FreeCompany: " + charFC)
+        #print(classGroup)
+
+
+
+        return(charName + 
+            "\nCharacter title: " + charTitle + 
+            "\nCharacter FreeCompany: " + charFC + 
+            "\nClass Levels:" + 
+            classGroup)
+
     else:
         return('Multiple results found, please narrow your search and check the spelling')
 
@@ -195,6 +212,7 @@ async def on_message(message):
                 secondName = strings[3]
                 tmp = await client.send_message(message.channel, 'Looking up ' + firstName + " " + secondName + " on Lodestone...")
                 await client.edit_message(tmp, lodeCheck(serverName, firstName, secondName))
+                #lodeCheck(serverName, firstName, secondName)
                 
             else:
                 await client.send_message(message.channel, 'Sorry thats not a !command I recognise')
