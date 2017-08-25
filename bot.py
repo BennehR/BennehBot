@@ -79,12 +79,6 @@ def dbAdd(fedInfo):
     else:
         return('Incorrect number of paramters provided. Please refer to "$psycoAdd help" if required.')
 
-#def webScrape(pageLink):
-#    page = requests.get(pageLink)
-#    tree = html.fromstring(page.content)
-
-#    soup = BeautifulSoup(page)
-
 def lodeCheck(server, firstName, secondName):
     page = requests.get('http://na.finalfantasyxiv.com/lodestone/character/?q=' + firstName + "%20" + secondName)
     data = page.text
@@ -215,7 +209,6 @@ async def on_message(message):
                 tmp = await client.send_message(message.channel, 'Looking up ' + firstName + " " + secondName + " on Lodestone...")
                 await client.edit_message(tmp, lodeCheck(serverName, firstName, secondName))
                 await client.send_file(message.channel, "playerImage.jpg")
-                #lodeCheck(serverName, firstName, secondName)
                 
             else:
                 await client.send_message(message.channel, 'Sorry thats not a !command I recognise')
