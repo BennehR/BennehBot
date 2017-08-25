@@ -6,6 +6,7 @@ import sqlite3 as lite
 import sys
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
+import requests
 
 con = None
 client = discord.Client()
@@ -85,12 +86,33 @@ def dbAdd(fedInfo):
 #    soup = BeautifulSoup(page)
 
 def lodeCheck(server, firstName, secondName):
-    quote_page = ('http://na.finalfantasyxiv.com/lodestone/community/search/?q=' + firstName + "+" + secondName)
-    page = urllib2.urlopen(quote_page)
-    soup = BeautifulSoup(page, 'html.parser')
-    nameBox = soup.find('p', attrs={'class': 'frame__chara__name'})
-    name = nameBox.text.strip()
-    print('Name elements: ', name)
+    page = requests.get('http://na.finalfantasyxiv.com/lodestone/character/?q=' + firstName + "%20" + secondName)
+    data = page.text
+    soup = BeautifulSoup(data, 'html.parser')
+    links = soup.find_all('a', {"class" : "entry__link"})
+    baseUrl = 'http://na.finalfantasyxiv.com'
+    charUrl = ''
+    fullUrl = ''
+    charName = firstName + " " + secondName
+    print(len(links))
+
+    if len(links) == 1:
+        charUrl = links[0].attrs['href']
+        fullUrl = baseUrl + charUrl
+        print(fullUrl)
+    
+    #for link in links:
+        #print(link.prettify())
+        #if link.attrs['class'] == 'entry__link':
+            #children = link.findChildren()
+            #for child in children:
+            #    print(child)
+
+        #print(link.attrs)
+        #if link.text == charName:
+        #    print(link.attrs['href'])
+        #    charUrl= link.attrs['href']
+        
 
 def getToken():
     con = lite.connect('psycoUsers.db')
