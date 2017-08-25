@@ -4,7 +4,7 @@ import time
 import datetime
 import sqlite3 as lite
 import sys
-from urllib.request import urlopen
+import urllib.request
 from bs4 import BeautifulSoup
 import requests
 
@@ -120,17 +120,19 @@ def lodeCheck(server, firstName, secondName):
 
         for classes in classNames:
             tooltip = classes.attrs['data-tooltip']
+            tooltipBold = "*" + str(tooltip) + "*"
             classLevel = str(classes.nextSibling).strip()
-            classGroup = classGroup + tooltip + ": " + classLevel + "\n"
+            classGroup = classGroup + tooltipBold + ": " + classLevel + "\n"
         
-        #print(classGroup)
-
+        imgUrl = soup.find('div', {"class" : "character__detail__image"}).find('a').find('img')['src']
+        urllib.request.urlretrieve(imgUrl, "playerImage.jpg")
+        print(imgUrl)
 
 
         return(charName + 
-            "\nCharacter title: " + charTitle + 
-            "\nCharacter FreeCompany: " + charFC + 
-            "\nClass Levels:" + 
+            "\n**Character title**: " + charTitle + 
+            "\n**Character FreeCompany**: " + charFC + 
+            "\n**Class Levels**:\n" + 
             classGroup)
 
     else:
@@ -212,6 +214,7 @@ async def on_message(message):
                 secondName = strings[3]
                 tmp = await client.send_message(message.channel, 'Looking up ' + firstName + " " + secondName + " on Lodestone...")
                 await client.edit_message(tmp, lodeCheck(serverName, firstName, secondName))
+                await client.send_file(message.channel, "playerImage.jpg")
                 #lodeCheck(serverName, firstName, secondName)
                 
             else:
