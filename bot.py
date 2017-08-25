@@ -94,25 +94,30 @@ def lodeCheck(server, firstName, secondName):
     charUrl = ''
     fullUrl = ''
     charName = firstName + " " + secondName
-    print(len(links))
+    print('Results: ' + str(len(links)))
 
     if len(links) == 1:
         charUrl = links[0].attrs['href']
         fullUrl = baseUrl + charUrl
         print(fullUrl)
     
-    #for link in links:
-        #print(link.prettify())
-        #if link.attrs['class'] == 'entry__link':
-            #children = link.findChildren()
-            #for child in children:
-            #    print(child)
+        page = requests.get(fullUrl)
+        data = page.text
+        soup = BeautifulSoup(data, 'html.parser')
 
-        #print(link.attrs)
-        #if link.text == charName:
-        #    print(link.attrs['href'])
-        #    charUrl= link.attrs['href']
+        try:
+            charTitle = soup.find('p', {"class" : "frame__chara__title"}).text
+        except:
+            charTitle = 'None'
         
+        try:
+            charFC = soup.find('div', {"class" : "character__freecompany__name"}).find('h4').text
+        except:
+            charFC = 'None'
+        
+        return(charName + "\nCharacter title: " + charTitle + "\nCharacter FreeCompany: " + charFC)
+    else:
+        return('Multiple results found, please narrow your search and check the spelling')
 
 def getToken():
     con = lite.connect('psycoUsers.db')
@@ -188,8 +193,9 @@ async def on_message(message):
                 serverName = strings[1]
                 firstName = strings[2]
                 secondName = strings[3]
-                lodeCheck(serverName, firstName, secondName)
-
+                tmp = await client.send_message(message.channel, 'Looking up ' + firstName + " " + secondName + " on Lodestone...")
+                await client.edit_message(tmp, lodeCheck(serverName, firstName, secondName))
+                
             else:
                 await client.send_message(message.channel, 'Sorry thats not a !command I recognise')
 
