@@ -11,6 +11,28 @@ import requests
 con = None
 client = discord.Client()
 
+commandLib = {'hello' : 'Command !hello returns a greeting from bennehbot with your name',
+    'repeat' : 'Command !repeat [word] will repeat the first word of what you said, after the command',
+    'whois' : 'Command !whois [name] will return information from a database (this example has a database for users in Psyconatuics)',
+    'test' : 'Command !test counts your previous messages and tells you how many you have in the last 100 messages',
+    'sleep' : 'Command !sleep puts bennehbot to sleep for 5 seconds',
+    'ping' : 'Command !ping replies "Pong!"',
+    'about' : 'Command !about provides information about bennehbot',
+    'lodestone' : 'Command !lodestone [serverName firstName secondName] returns information from a character provided form the lodestone website',
+    'potd' : 'Command !potd [dataCenter class (solo/party)] will return the current top rankings for specified world, class and solo or party',}
+
+commandSudoLib = {'boom' : 'Command $boom returns a message',
+    'psycoadd' : 'Command $psycoAdd [username;screenNames;psyconauticsMember] will add a user to the database using provided information separated by semi-colons.'}
+
+commandNameLib = []
+commandSudoNameLib = []
+
+for key in commandLib:
+        commandNameLib.append(key)
+
+for key in commandSudoLib:
+        commandSudoNameLib.append(key)
+
 try:
     print('Opening connection to psycoUsers database')
 
@@ -147,7 +169,7 @@ def potdCheck(dataCenter, classSel):
         'dragoon' : 'b16807bd2ef49bd57893c56727a8f61cbaeae008',
         'lancer' : 'b16807bd2ef49bd57893c56727a8f61cbaeae008',
         'ninja' : 'e8f417ab2afdd9a1e608cb08f4c7a1ae3fe4a441',
-        'rouge' : 'e8f417ab2afdd9a1e608cb08f4c7a1ae3fe4a441',
+        'rogue' : 'e8f417ab2afdd9a1e608cb08f4c7a1ae3fe4a441',
         'samurai' : '7c3485028121b84720df20de7772371d279d097d',
         'bard' : 'f50dbaf7512c54b426b991445ff06a6697f45d2a',
         'archer' : 'f50dbaf7512c54b426b991445ff06a6697f45d2a',
@@ -158,29 +180,59 @@ def potdCheck(dataCenter, classSel):
         'arcanist' : '9ef51b0f36842b9566f40c5e3de2c55a672e4607',
         'redmage' : '55a98ea6cf180332222184e9fb788a7941a03ec3'}
 
+    #classNameLib = list(classLib.keys())
+    classNameLib = []
+    dcLib = ['elemental', 'gaia','mana','aether','primal','chaos']
 
-    link1 = 'http://na.finalfantasyxiv.com/lodestone/ranking/deepdungeon/?subtype='
-    link2 = classLib[classSel.lower()]
-    link3 = '&solo_party=solo&dcgroup='
-    link4 = dataCenter
-    page = requests.get(link1 + link2 + link3 + link4)
-    data = page.text
-    soup = BeautifulSoup(data, 'html.parser')
-    rankings = soup.find_all(class_="deepdungeon__ranking__order")
-    charNames = soup.find_all(class_="deepdungeon__ranking__name")
+    for key in classLib:
+        classNameLib.append(key)
 
-    
+    if classSel.lower() in classLib:
+        link1 = 'http://na.finalfantasyxiv.com/lodestone/ranking/deepdungeon/?subtype='
+        link2 = classLib[classSel.lower()]
+        link3 = '&solo_party=solo&dcgroup='
+        link4 = dataCenter
+        if dataCenter in dcLib:
 
-    outputString = ''
-    listPos = 0
-    for name in charNames:
-        outputString = outputString + str(rankings[listPos].find('p').text) + " - " + str(charNames[listPos].find('h3').get_text()) + "\n"
-        listPos = listPos + 1
-        
-    print(link1 + link2 + link3 + link4)
-    print(outputString)
-    return(outputString)
-    #return('[Debug] Complete, see console.')
+            page = requests.get(link1 + link2 + link3 + link4)
+            data = page.text
+            soup = BeautifulSoup(data, 'html.parser')
+            rankings = soup.find_all(class_="deepdungeon__ranking__order")
+            charNames = soup.find_all(class_="deepdungeon__ranking__name")
+            rankFloor = soup.find_all(class_="deepdungeon__ranking__data--reaching")
+            rankPoints = soup.find_all(class_="deepdungeon__ranking__data--score")
+            outputString = ''
+            listPos = 0
+            
+            for name in charNames:
+                outputString = outputString + str(rankings[listPos].find('p').text) + " - " + str(rankFloor[listPos].get_text()) + " - **" + str(charNames[listPos].find('h3').get_text()) + "** - " + str(rankPoints[listPos].get_text()) + "\n"
+                listPos = listPos + 1
+                
+            return(outputString)
+            #return('[Debug] Complete, see console.')
+
+        else:
+            dcListString = ''
+            counter = 0
+            for name in dcLib:
+                dcListString = dcListString + dcLib[counter] + '\n'
+                counter += 1
+
+            return('Sorry thats not a data center I recgosnise. \n' +
+                'The following are valid names:\n' + 
+                dcListString)
+    else:
+        classListString = ''
+        counter = 0
+
+        for name in classNameLib:
+            classListString = classListString + classNameLib[counter] + "\n"
+            counter += 1
+
+        return('\nSorry thats not a class I recognise \n' +
+            'The following are classes I know: \n' +
+            '\n(Classes can be any case but must be one word, I\'m learning to read spaces)\n\n' +
+            classListString)
 
 def getToken():
     con = lite.connect('psycoUsers.db')
@@ -224,6 +276,23 @@ async def on_message(message):
             if message.content.startswith('!hello'):
                 msgauth = message.author.name
                 await client.send_message(message.channel, 'Hello {}'.format(msgauth))
+
+            elif message.content.startswith('!help'):
+                strings = message.content.split()
+                if len(strings) != 1:
+                    if strings[1] in commandNameLib:
+                        await client.send_message(message.channel, commandLib[strings[1]])
+                    else:
+                        await client.send_message(message.channel, 'That isnt a command I recognise, use "!help" by itself to see a full list of commands.')
+                else:
+                    commandNameString = ''
+                    counter = 0
+
+                    for name in commandNameLib:
+                        commandNameString = commandNameString + '*' + name + '*' + ' \n'
+                        counter += 1
+
+                    await client.send_message(message.channel, 'Here are the following availble commands:\n' + commandNameString)
 
             elif message.content.startswith('!repeat'):
                 await client.send_message(message.channel, testDef(message))
