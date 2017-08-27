@@ -178,7 +178,8 @@ def potdCheck(dataCenter, classSel):
         'thaumaturge' : 'f28896f2b4a22b014e3bb85a7f20041452319ff2',
         'summoner' : '9ef51b0f36842b9566f40c5e3de2c55a672e4607',
         'arcanist' : '9ef51b0f36842b9566f40c5e3de2c55a672e4607',
-        'redmage' : '55a98ea6cf180332222184e9fb788a7941a03ec3'}
+        'redmage' : '55a98ea6cf180332222184e9fb788a7941a03ec3',
+        'party' : ''}
 
     #classNameLib = list(classLib.keys())
     classNameLib = []
@@ -188,39 +189,79 @@ def potdCheck(dataCenter, classSel):
         classNameLib.append(key)
 
     if classSel.lower() in classLib:
-        link1 = 'http://na.finalfantasyxiv.com/lodestone/ranking/deepdungeon/?subtype='
-        link2 = classLib[classSel.lower()]
-        link3 = '&solo_party=solo&dcgroup='
-        link4 = dataCenter
-        if dataCenter in dcLib:
+        if classSel.lower() == 'party':
+            link1 = 'http://na.finalfantasyxiv.com/lodestone/ranking/deepdungeon/?solo_party=party&dcgroup='
+            link2 = dataCenter.title()
 
-            page = requests.get(link1 + link2 + link3 + link4)
-            data = page.text
-            soup = BeautifulSoup(data, 'html.parser')
-            rankings = soup.find_all(class_="deepdungeon__ranking__order")
-            charNames = soup.find_all(class_="deepdungeon__ranking__name")
-            rankFloor = soup.find_all(class_="deepdungeon__ranking__data--reaching")
-            rankPoints = soup.find_all(class_="deepdungeon__ranking__data--score")
-            outputString = ''
-            listPos = 0
-            
-            for name in charNames:
-                outputString = outputString + str(rankings[listPos].find('p').text) + " - " + str(rankFloor[listPos].get_text()) + " - **" + str(charNames[listPos].find('h3').get_text()) + "** - " + str(rankPoints[listPos].get_text()) + "\n"
-                listPos = listPos + 1
-                
-            return(outputString)
-            #return('[Debug] Complete, see console.')
+            if dataCenter in dcLib:
+
+                page = requests.get(link1 + link2)
+                data = page.text
+                soup = BeautifulSoup(data, 'html.parser')
+                rankings = soup.find_all(class_="deepdungeon__ranking__order")
+                charNames = soup.find_all(class_="deepdungeon__ranking__name")
+                rankFloor = soup.find_all(class_="deepdungeon__ranking__data--reaching")
+                rankPoints = soup.find_all(class_="deepdungeon__ranking__data--score")
+                rankClass = soup.find_all('img', {'class' : 'tooltip'})
+                outputString = ''
+                listPos = 0
+
+                for name in charNames:
+                    if int(rankings[listPos].find('p').text) <= 25:
+                        rankClassName = rankClass[listPos].get('title')
+                        outputString = outputString + str(rankings[listPos].find('p').text) + " - " + str(rankFloor[listPos].get_text()) + " - **" + str(charNames[listPos].find('h3').get_text()) + "** - " + str(rankClassName) + " - " + str(rankPoints[listPos].get_text()) + "\n"
+                        listPos = listPos + 1
+                    
+                return(outputString)
+                return('[Debug] Complete, see console.')
+
+            else:
+                dcListString = ''
+                counter = 0
+                for name in dcLib:
+                    dcListString = dcListString + dcLib[counter] + '\n'
+                    counter += 1
+
+                return('Sorry thats not a data center I recgosnise. \n' +
+                    'The following are valid names:\n' + 
+                    dcListString)
 
         else:
-            dcListString = ''
-            counter = 0
-            for name in dcLib:
-                dcListString = dcListString + dcLib[counter] + '\n'
-                counter += 1
+            link1 = 'http://na.finalfantasyxiv.com/lodestone/ranking/deepdungeon/?subtype='
+            link2 = classLib[classSel.lower()]
+            link3 = '&solo_party=solo&dcgroup='
+            link4 = dataCenter
 
-            return('Sorry thats not a data center I recgosnise. \n' +
-                'The following are valid names:\n' + 
-                dcListString)
+            if dataCenter in dcLib:
+
+                page = requests.get(link1 + link2 + link3 + link4)
+                data = page.text
+                soup = BeautifulSoup(data, 'html.parser')
+                rankings = soup.find_all(class_="deepdungeon__ranking__order")
+                charNames = soup.find_all(class_="deepdungeon__ranking__name")
+                rankFloor = soup.find_all(class_="deepdungeon__ranking__data--reaching")
+                rankPoints = soup.find_all(class_="deepdungeon__ranking__data--score")
+                outputString = ''
+                listPos = 0
+                
+                for name in charNames:
+                    outputString = outputString + str(rankings[listPos].find('p').text) + " - " + str(rankFloor[listPos].get_text()) + " - **" + str(charNames[listPos].find('h3').get_text()) + "** - " + str(rankPoints[listPos].get_text()) + "\n"
+                    listPos = listPos + 1
+                    
+                return(outputString)
+                #return('[Debug] Complete, see console.')
+
+            else:
+                dcListString = ''
+                counter = 0
+                for name in dcLib:
+                    dcListString = dcListString + dcLib[counter] + '\n'
+                    counter += 1
+
+                return('Sorry thats not a data center I recgosnise. \n' +
+                    'The following are valid names:\n' + 
+                    dcListString)
+        
     else:
         classListString = ''
         counter = 0
@@ -333,8 +374,13 @@ async def on_message(message):
                 strings = message.content.split()
                 dataCenter = strings[1]
                 charClass = strings[2]
-                tmp = await client.send_message(message.channel, 'Looking up the top 25 solo rankings for ' + charClass + ' in POTD...')
-                await client.edit_message(tmp, 'Results for solo **' + charClass + "** \n" + potdCheck(dataCenter, charClass))
+                
+                if charClass.lower() == 'party':
+                    tmp = await client.send_message(message.channel, 'Looking up the top 25 party rankings in POTD...')
+                    await client.edit_message(tmp, 'Results for party: \n' + potdCheck(dataCenter, charClass))
+                else:
+                    tmp = await client.send_message(message.channel, 'Looking up the top 25 solo rankings for ' + charClass + ' in POTD...')
+                    await client.edit_message(tmp, 'Results for solo **' + charClass + "** \n" + potdCheck(dataCenter, charClass))
                 
                 
             else:
