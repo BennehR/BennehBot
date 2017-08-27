@@ -132,6 +132,56 @@ def lodeCheck(server, firstName, secondName):
     else:
         return('Multiple results found, please narrow your search and check the spelling')
 
+def potdCheck(dataCenter, classSel):
+    classLib = {'gladiator' : '125bf9c1198a3a148377efea9c167726d58fa1a5',
+        'paladin' : '125bf9c1198a3a148377efea9c167726d58fa1a5',
+        'warrior' : '741ae8622fa496b4f98b040ff03f623bf46d790f',
+        'marauder' : '741ae8622fa496b4f98b040ff03f623bf46d790f',
+        'darkknight' : 'c31f30f41ab1562461262daa74b4d374e633a790',
+        'whitemage' : '56d60f8dbf527ab9a4f96f2906f044b33e7bd349',
+        'conjurer' : '56d60f8dbf527ab9a4f96f2906f044b33e7bd349',
+        'scholar' : '56f91364620add6b8e53c80f0d5d315a246c3b94',
+        'astrologian' : 'eb7fb1a2664ede39d2d921e0171a20fa7e57eb2b',
+        'monk' : '46fcce8b2166c8afb1d76f9e1fa3400427c73203',
+        'pugilist' : '46fcce8b2166c8afb1d76f9e1fa3400427c73203',
+        'dragoon' : 'b16807bd2ef49bd57893c56727a8f61cbaeae008',
+        'lancer' : 'b16807bd2ef49bd57893c56727a8f61cbaeae008',
+        'ninja' : 'e8f417ab2afdd9a1e608cb08f4c7a1ae3fe4a441',
+        'rouge' : 'e8f417ab2afdd9a1e608cb08f4c7a1ae3fe4a441',
+        'samurai' : '7c3485028121b84720df20de7772371d279d097d',
+        'bard' : 'f50dbaf7512c54b426b991445ff06a6697f45d2a',
+        'archer' : 'f50dbaf7512c54b426b991445ff06a6697f45d2a',
+        'machinist' : '773aae6e524e9a497fe3b09c7084af165bef434d',
+        'blackmage' : 'f28896f2b4a22b014e3bb85a7f20041452319ff2',
+        'thaumaturge' : 'f28896f2b4a22b014e3bb85a7f20041452319ff2',
+        'summoner' : '9ef51b0f36842b9566f40c5e3de2c55a672e4607',
+        'arcanist' : '9ef51b0f36842b9566f40c5e3de2c55a672e4607',
+        'redmage' : '55a98ea6cf180332222184e9fb788a7941a03ec3'}
+
+
+    link1 = 'http://na.finalfantasyxiv.com/lodestone/ranking/deepdungeon/?subtype='
+    link2 = classLib[classSel.lower()]
+    link3 = '&solo_party=solo&dcgroup='
+    link4 = dataCenter
+    page = requests.get(link1 + link2 + link3 + link4)
+    data = page.text
+    soup = BeautifulSoup(data, 'html.parser')
+    rankings = soup.find_all(class_="deepdungeon__ranking__order")
+    charNames = soup.find_all(class_="deepdungeon__ranking__name")
+
+    
+
+    outputString = ''
+    listPos = 0
+    for name in charNames:
+        outputString = outputString + str(rankings[listPos].find('p').text) + " - " + str(charNames[listPos].find('h3').get_text()) + "\n"
+        listPos = listPos + 1
+        
+    print(link1 + link2 + link3 + link4)
+    print(outputString)
+    return(outputString)
+    #return('[Debug] Complete, see console.')
+
 def getToken():
     con = lite.connect('psycoUsers.db')
     cur = con.cursor()
@@ -209,6 +259,14 @@ async def on_message(message):
                 tmp = await client.send_message(message.channel, 'Looking up ' + firstName + " " + secondName + " on Lodestone...")
                 await client.edit_message(tmp, lodeCheck(serverName, firstName, secondName))
                 await client.send_file(message.channel, "playerImage.jpg")
+
+            elif message.content.startswith('!potd'):
+                strings = message.content.split()
+                dataCenter = strings[1]
+                charClass = strings[2]
+                tmp = await client.send_message(message.channel, 'Looking up the top 25 solo rankings for ' + charClass + ' in POTD...')
+                await client.edit_message(tmp, 'Results for solo **' + charClass + "** \n" + potdCheck(dataCenter, charClass))
+                
                 
             else:
                 await client.send_message(message.channel, 'Sorry thats not a !command I recognise')
