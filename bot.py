@@ -19,7 +19,7 @@ commandLib = {'hello' : 'Command !hello returns a greeting from bennehbot with y
     'ping' : 'Command !ping replies "Pong!"',
     'about' : 'Command !about provides information about bennehbot',
     'lodestone' : 'Command !lodestone [serverName firstName secondName] returns information from a character provided form the lodestone website',
-    'potd' : 'Command !potd [dataCenter class (solo/party)] will return the current top rankings for specified world, class and solo or party',}
+    'potd' : 'Command !potd [dataCenter class] will return the current top rankings for specified world, class and solo or party. eg: "!potd ather rogue" / "!potd chaos party" / "!potd mana redmage"',}
 
 commandSudoLib = {'boom' : 'Command $boom returns a message',
     'psycoadd' : 'Command $psycoAdd [username;screenNames;psyconauticsMember] will add a user to the database using provided information separated by semi-colons.'}
