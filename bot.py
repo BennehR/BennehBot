@@ -7,6 +7,7 @@ import sys
 import urllib.request
 from bs4 import BeautifulSoup
 import requests
+import threading
 
 con = None
 client = discord.Client()
@@ -34,9 +35,9 @@ for key in commandSudoLib:
         commandSudoNameLib.append(key)
 
 try:
-    print('Opening connection to psycoUsers database')
+    print('Opening connection to BennehBotDB database')
 
-    con = lite.connect('psycoUsers.db')
+    con = lite.connect('BennehBotDB.db')
 
     cur = con.cursor()
     cur.execute('SELECT SQLITE_VERSION()')
@@ -58,7 +59,7 @@ def testDef(word):
 
 def dbPull(nameInput):
     strings = nameInput.content.split()
-    con = lite.connect('psycoUsers.db')
+    con = lite.connect('BennehBotDB.db')
 
     name = strings[1]
     cur = con.cursor()
@@ -80,7 +81,7 @@ def dbPull(nameInput):
 def dbAdd(fedInfo):
     strings = fedInfo.content.split(";")
     if len(strings) == 4:
-        con = lite.connect('psycoUsers.db')
+        con = lite.connect('BennehBotDB.db')
 
         usrName = strings[1]
         scrnName = strings[2]
@@ -100,6 +101,25 @@ def dbAdd(fedInfo):
     
     else:
         return('Incorrect number of paramters provided. Please refer to "$psycoAdd help" if required.')
+
+async def FactorioVersionCheck():
+    page = requests.get('https://forums.factorio.com/viewforum.php?f=3&sid=9e666eb4cc7efaa762351041e014425f')
+    data = page.text
+    soup = BeautifulSoup(data, 'html.parser')
+    links = soup.find_all('a', {"class" : "topictitle"})
+    i = 0
+
+    for thread in links:
+        charUrl = thread.text
+
+        if charUrl != "":
+            if "Version" in charUrl:
+                ThreadName = charUrl[8:]
+                print(ThreadName)
+                await asyncio.sleep(2)
+
+        
+
 
 def lodeCheck(server, firstName, secondName):
     page = requests.get('http://na.finalfantasyxiv.com/lodestone/character/?q=' + firstName + "%20" + secondName)
@@ -276,7 +296,7 @@ def potdCheck(dataCenter, classSel):
             classListString)
 
 def getToken():
-    con = lite.connect('psycoUsers.db')
+    con = lite.connect('BennehBotDB.db')
     cur = con.cursor()
     cur.execute("SELECT * FROM clientToken")
 
@@ -286,7 +306,7 @@ def getToken():
         return(clientToken)
 
 def getAuths(authId):
-    con = lite.connect('psycoUsers.db')
+    con = lite.connect('BennehBotDB.db')
     cur = con.cursor()
     cur.execute("SELECT * FROM authUsers")
 
@@ -309,6 +329,9 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------') 
+    client.loop.create_task(FactorioVersionCheck())
+
+
 
 @client.event
 async def on_message(message):
@@ -381,6 +404,10 @@ async def on_message(message):
                 else:
                     tmp = await client.send_message(message.channel, 'Looking up the top 25 solo rankings for ' + charClass + ' in POTD...')
                     await client.edit_message(tmp, 'Results for solo **' + charClass + "** \n" + potdCheck(dataCenter, charClass))
+
+            elif message.content.startswith('!Fac'):
+                #FactorioVersionCheck()
+                await client.send_message(message.channel, FactorioVersionCheck())
                 
                 
             else:
