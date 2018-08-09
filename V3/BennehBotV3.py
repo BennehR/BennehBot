@@ -7,10 +7,11 @@ import sys
 import os
 
 from discord.ext import commands
-from UpdateFinders import UF_Factorio
-from UpdateFinders import UF_NoMansSky
+import UF_Factorio
+import UF_NoMansSky
 
 FactorioVerListSetup = UF_Factorio.FactorioVerListSetup
+FactorioVersionCheck = UF_Factorio.FactorioVersionCheck
 
 con = None
 bot = commands.Bot(command_prefix='!')
@@ -43,8 +44,6 @@ def getToken():
         con.close()
         return(clientToken)
 
-
-
 @bot.event
 async def on_ready():
     print('Logged in as')
@@ -52,7 +51,7 @@ async def on_ready():
     print(bot.user.id)
     print('------') 
     await FactorioVerListSetup()
-    bot.loop.create_task(FactorioVersionCheck())
+    bot.loop.create_task(FactorioVersionCheck(bot))
 
 @bot.command(pass_context=True)
 async def hello(ctx):

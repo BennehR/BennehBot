@@ -2,6 +2,7 @@ import asyncio
 import time
 import urllib.request
 import requests
+import sqlite3 as lite
 from bs4 import BeautifulSoup
 
 FacVers = []
@@ -25,10 +26,13 @@ async def FactorioVerListSetup():
     #print(FacVers)
     #print('----------')
 
-async def FactorioVersionCheck():
+async def FactorioVersionCheck(botVar):
+    #from BennehBotV3 import bot
+
     while True:
         await FactorioVerListSetup()
-        Channel = bot.get_channel(396716668967059468)
+        print('List updated')
+        Channel = botVar.get_channel(396716668967059468)
         UrlHeader = 'https://forums.factorio.com/'
         page = requests.get('https://forums.factorio.com/viewforum.php?f=3&sid=9e666eb4cc7efaa762351041e014425f')
         data = page.text
@@ -70,7 +74,9 @@ async def FactorioVersionCheck():
                         
                         await Channel.send('A new version has been posted to the forum.')
                         await Channel.send(ThreadName + " - " + ThreadSubmitted + " - " + ThreadURL)
+                        print('A new version has been posted to the forum.')
+                        print(ThreadName + " - " + ThreadSubmitted + " - " + ThreadURL)
                         
-        print("Done, waiting")
+        print("Done, now waiting...")
         await asyncio.sleep(900)
         print("Finished waiting")
