@@ -27,7 +27,6 @@ async def FactorioVerListSetup():
     #print('----------')
 
 async def FactorioVersionCheck(botVar):
-    #from BennehBotV3 import bot
 
     while True:
         await FactorioVerListSetup()
