@@ -1,0 +1,13 @@
+{
+    "Tokens": {
+        "Telegram": {
+            "BotToken": "XXXXTELEGRAM_BOT_TOKENXXXX",
+            "ChatID": [
+                {
+                    "XXXXCHAT_IDXXXX": "XXXXNAMEXXXX"
+                }
+            ]
+        },
+        "Discord": "XXXXDISCORD_BOT_TOKENXXXX"
+    }
+}
