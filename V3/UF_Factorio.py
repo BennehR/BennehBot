@@ -7,8 +7,12 @@ from bs4 import BeautifulSoup
 
 FacVers = []
 
+def printMsg(msg):
+    print("UF_Fac: " + str(msg))
+
 async def FactorioVerListSetup():
     FacVers.clear()
+    printMsg('Refreshing version list')
     try:
         con = lite.connect('BennehBotDB.db')
         cur = con.cursor()
@@ -22,15 +26,12 @@ async def FactorioVerListSetup():
         return('Unhandled connection error \n' + e.message)
     finally:
         con.close()
-    
-    #print(FacVers)
-    #print('----------')
 
 async def FactorioVersionCheck(botVar):
 
     while True:
         await FactorioVerListSetup()
-        print('List updated')
+        printMsg('List updated')
         Channel = botVar.get_channel(396716668967059468)
         UrlHeader = 'https://forums.factorio.com/'
         page = requests.get('https://forums.factorio.com/viewforum.php?f=3&sid=9e666eb4cc7efaa762351041e014425f')
@@ -53,7 +54,7 @@ async def FactorioVersionCheck(botVar):
                     #If the number does not exist in the array of known versions
                     #Grab its URL and date submitted then add all this to the DB
                     if ThreadName not in FacVers:
-                        print(ThreadName + " appears to be a new release")
+                        printMsg(ThreadName + " appears to be a new release")
                         ThreadURL = thread.attrs['href']
                         ThreadURL = UrlHeader + ThreadURL[2:]
                         ThreadSubmitted = thread.parent.text
@@ -73,9 +74,7 @@ async def FactorioVersionCheck(botVar):
                         
                         await Channel.send('A new version has been posted to the forum.')
                         await Channel.send(ThreadName + " - " + ThreadSubmitted + " - " + ThreadURL)
-                        print('A new version has been posted to the forum.')
-                        print(ThreadName + " - " + ThreadSubmitted + " - " + ThreadURL)
-                        
-        print("Done, now waiting...")
+                        printMsg('A new version has been posted to the forum.')
+                        printMsg(ThreadName + " - " + ThreadSubmitted + " - " + ThreadURL)
+        printMsg("UF_Fac done.")
         await asyncio.sleep(900)
-        print("Finished waiting")
