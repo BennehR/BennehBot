@@ -1,18 +1,34 @@
 import asyncio
-import time
+import datetime
 import urllib.request
 import requests
 import sqlite3 as lite
 from bs4 import BeautifulSoup
+import json
 
 NMSVers = []
 
-""" async def NMSVerListSetup():
+def printMsg(msg):
+    print("UF_NMS: " + str(msg))
+
+def get_url(url):
+    response = requests.get(url)
+    content = response.content.decode("utf8")
+    return content
+
+def TelegramUpdate(updateInfo, JSONData):
+    for token in JSONData["Tokens"]["Telegram"]["ChatID"]:
+        url = "https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(JSONData["Tokens"]["Telegram"]["BotToken"], next(iter(token.keys())), updateInfo)
+        printMsg(url)
+        get_url(url)
+
+async def NMSVerListSetup():
     NMSVers.clear()
+    printMsg('Refreshing version list')
     try:
         con = lite.connect('BennehBotDB.db')
         cur = con.cursor()
-        cur.execute("SELECT Ver FROM NMS_Versions")
+        cur.execute("SELECT PatchName FROM NMS_Versions")
         i = 0
 
         for versions in cur:
@@ -22,74 +38,54 @@ NMSVers = []
         return('Unhandled connection error \n' + e.message)
     finally:
         con.close()
-    
-    #print(NMSVers)
-    #print('----------') """
 
-def NMSVersionCheck():
+async def NMSVersionCheck():
+    while True:
+        with open('config.json') as json_data:
+            JSONConfig = json.load(json_data)
 
-    #while True:
-        #await NMSVerListSetup()
+        await NMSVerListSetup()
+        printMsg('List updated')
+        UrlHeader = 'https://www.nomanssky.com/'
+        page = requests.get('https://www.nomanssky.com/release-log/')
+        data = page.text
+        soup = BeautifulSoup(data, 'html.parser')
+        updateEntries = soup.find_all('a', {"class" : "link link--inherit"})
+        i = 0
 
-    #This needs indenting once more when added back into a loop
-    print('List updated')
-    UrlHeader = 'https://www.nomanssky.com/'
-    page = requests.get('https://www.nomanssky.com/release-log/')
-    data = page.text
-    soup = BeautifulSoup(data, 'html.parser')
-    updateEntries = soup.find_all('a', {"class" : "link link--inherit"})
-    i = 0
+        for entry in updateEntries:
+            updateText = entry.find("h2", recursive=True)
+            updateText = updateText.text
+            updateURL = entry.attrs['href']
 
-    for entry in updateEntries:
-        updateText = entry.find("h2", recursive=True)
-        updateText = updateText.text
-        #updateLink = entry.findChildren("a", recursive=True)
-        updateURL = entry.attrs['href']
-        print(updateText + " - " + updateURL)
-        #print(updateURL)
+            #This section checks if the URL starts with https, corrects if not
+            if "http" not in updateURL:
+                updateURL = UrlHeader + updateURL[1:]
 
-    print('Complete')
+            dateStamp = str(datetime.datetime.now())
 
-NMSVersionCheck()
-
-#Existing code for reference before deletion
-""" #Loop through the links found by BS
-for patch in links:
-    PatchName = patch.text
-
-    #If the PatchName is not blank
-    if PatchName != "":
-
-        #If the PatchName contains 'Version' trim it out and begin
-        if "Version" in PatchName:
-            PatchName = PatchName[8:]
-
-            #If the number does not exist in the array of known versions
-            #Grab its URL and date submitted then add all this to the DB
-            if PatchName not in NMSVers:
-                print(PatchName + " appears to be a new release")
-                PatchURL = patch.attrs['href']
-                PatchURL = UrlHeader + PatchURL[2:]
-                PatchSubmitted = patch.parent.text
-                SplitLoc = PatchSubmitted.find('»')
-                PatchSubmitted = PatchSubmitted[SplitLoc + 2:]
-                PatchSubmitted = PatchSubmitted.strip()
+            if updateText not in NMSVers:
+                printMsg('New entry')
+                updateInfo = updateText + " - " + updateURL + " - " + dateStamp
+                printMsg(updateInfo)
+                TelegramUpdate(updateInfo, JSONConfig)
 
                 try:
+                    printMsg('Connecting...')
                     con = lite.connect('BennehBotDB.db')
+                    printMsg('Connected!')
                     cur = con.cursor()
-                    cur.execute("INSERT INTO NMS_Versions VALUES(?,?,?,?)", (PatchName, PatchSubmitted, PatchURL, "N/A"))
+                    printMsg('Adding to DB...')
+                    cur.execute("INSERT INTO NMS_Versions VALUES(?,?,?)", (updateText, updateURL, dateStamp))
+                    printMsg('Committing...')
                     con.commit()
+                    printMsg('Entry added to DB')
+                except Exception as e:
+                    return("Unhandled connection error \n" + str(e))
                 except lite.Error as e:
                     return('Unhandled connection error \n' + e.message)
                 finally:
                     con.close()
-                
-                #await Channel.send('A new version has been posted to the forum.')
-                #await Channel.send(PatchName + " - " + PatchSubmitted + " - " + PatchURL)
-                #print('A new version has been posted to the forum.')
-                #print(PatchName + " - " + PatchSubmitted + " - " + PatchURL)
-                
-print("Done, now waiting...")
-await asyncio.sleep(900)
-print("Finished waiting")"""
+
+        printMsg('UF_NMS done.')
+        await asyncio.sleep(900)
