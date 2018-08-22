@@ -1,13 +1,34 @@
 {
     "Tokens": {
         "Telegram": {
-            "BotToken": "XXXXTELEGRAM_BOT_TOKENXXXX",
-            "ChatID": [
+            "Bot Token": "XXXX",
+            "Bot Users": [
                 {
-                    "XXXXCHAT_IDXXXX": "XXXXNAMEXXXX"
+                    "ID" : "XXXX",
+                    "Name" : "XXXX",
+                    "No Mans Sky Updates" : "True"
+                },
+                {
+                    "ID" : "XXXX",
+                    "Name" : "XXXX",
+                    "No Mans Sky Updates" : "False"
                 }
             ]
         },
-        "Discord": "XXXXDISCORD_BOT_TOKENXXXX"
-    }
+        "Discord": "XXXX"
+    },
+    "Discord SubBots" : [
+        {
+            "Name" : "XXXX",
+            "Enabled" : "True",
+            "File" : "XXXX"
+        }
+    ],
+    "Independant SubBots" : [
+        {
+            "Name" : "XXXX",
+            "Enabled" : "True",
+            "File" : "XXXX"
+        }
+    ]
 }

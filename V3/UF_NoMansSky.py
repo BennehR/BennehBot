@@ -1,4 +1,4 @@
-import asyncio
+import time
 import datetime
 import urllib.request
 import requests
@@ -9,7 +9,7 @@ import json
 NMSVers = []
 
 def printMsg(msg):
-    print("UF_NMS: " + str(msg))
+    print("UF_NMS: {}".format(msg))
 
 def get_url(url):
     response = requests.get(url)
@@ -17,19 +17,19 @@ def get_url(url):
     return content
 
 def TelegramUpdate(updateInfo, JSONData):
-    for token in JSONData["Tokens"]["Telegram"]["ChatID"]:
-        url = "https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(JSONData["Tokens"]["Telegram"]["BotToken"], next(iter(token.keys())), updateInfo)
-        printMsg(url)
-        get_url(url)
+    for Users in JSONData["Tokens"]["Telegram"]["Bot Users"]:
+        if Users["No Mans Sky Updates"] == "True":
+            url = "https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(JSONData["Tokens"]["Telegram"]["Bot Token"], Users["ID"], updateInfo)
+            printMsg(url)
+            get_url(url)
 
-async def NMSVerListSetup():
+def NMSVerListSetup():
     NMSVers.clear()
     printMsg('Refreshing version list')
     try:
         con = lite.connect('BennehBotDB.db')
         cur = con.cursor()
         cur.execute("SELECT PatchName FROM NMS_Versions")
-        i = 0
 
         for versions in cur:
             NMSVers.append(versions[0])
@@ -39,19 +39,18 @@ async def NMSVerListSetup():
     finally:
         con.close()
 
-async def NMSVersionCheck():
+def VersionCheck():
     while True:
         with open('config.json') as json_data:
             JSONConfig = json.load(json_data)
 
-        await NMSVerListSetup()
+        NMSVerListSetup()
         printMsg('List updated')
         UrlHeader = 'https://www.nomanssky.com/'
         page = requests.get('https://www.nomanssky.com/release-log/')
         data = page.text
         soup = BeautifulSoup(data, 'html.parser')
         updateEntries = soup.find_all('a', {"class" : "link link--inherit"})
-        i = 0
 
         for entry in updateEntries:
             updateText = entry.find("h2", recursive=True)
@@ -88,4 +87,6 @@ async def NMSVersionCheck():
                     con.close()
 
         printMsg('UF_NMS done.')
-        await asyncio.sleep(900)
+        time.sleep(900)
+
+VersionCheck()

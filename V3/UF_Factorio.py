@@ -17,7 +17,6 @@ async def FactorioVerListSetup():
         con = lite.connect('BennehBotDB.db')
         cur = con.cursor()
         cur.execute("SELECT Ver FROM Factorio_Versions")
-        i = 0
 
         for versions in cur:
             FacVers.append(versions[0])
@@ -27,7 +26,7 @@ async def FactorioVerListSetup():
     finally:
         con.close()
 
-async def FactorioVersionCheck(botVar):
+async def VersionCheck(botVar):
 
     while True:
         await FactorioVerListSetup()
@@ -38,7 +37,6 @@ async def FactorioVersionCheck(botVar):
         data = page.text
         soup = BeautifulSoup(data, 'html.parser')
         links = soup.find_all('a', {"class" : "topictitle"})
-        i = 0
 
         #Loop through the links found by BS
         for thread in links:
