@@ -1,3 +1,6 @@
 BennehBotDB.db
 config.json
 .vscode/settings.json
+V3/Test.py
+*.code-workspace
+.vscode/launch.json
