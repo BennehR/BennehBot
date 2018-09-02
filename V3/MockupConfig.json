@@ -1,34 +1,51 @@
 {
-    "Tokens": {
-        "Telegram": {
-            "Bot Token": "XXXX",
-            "Bot Users": [
-                {
-                    "ID" : "XXXX",
-                    "Name" : "XXXX",
-                    "No Mans Sky Updates" : "True"
-                },
-                {
-                    "ID" : "XXXX",
-                    "Name" : "XXXX",
-                    "No Mans Sky Updates" : "False"
-                }
-            ]
-        },
-        "Discord": "XXXX"
-    },
-    "Discord SubBots" : [
+    "Bot Users": [
         {
-            "Name" : "XXXX",
-            "Enabled" : "True",
-            "File" : "XXXX"
+            "ID": "XXXX",
+            "Name": "XXXX",
+            "No Mans Sky Updates": "True",
+            "Admin" : "True"
+        },
+        {
+            "ID": "123456",
+            "Name": "Test User",
+            "No Mans Sky Updates": "False",
+            "Admin" : "False"
         }
     ],
-    "Independant SubBots" : [
+    "Tokens": {
+        "Telegram": "XXXX",
+        "Discord": "XXXX"
+    },
+    "Discord SubBots": [
         {
-            "Name" : "XXXX",
-            "Enabled" : "True",
-            "File" : "XXXX"
+            "Name": "Factorio",
+            "Enabled": "True",
+            "File": "UF_Factorio",
+            "Last Response": "26/08/2018 16:15:47"
         }
-    ]
+    ],
+    "Independant SubBots": [
+        {
+            "Name": "Discord",
+            "Enabled": "True",
+            "File": "BennehBotV3",
+            "Last Response": "26/08/2018 16:15:47"
+        },
+        {
+            "Name": "No_Mans_Sky",
+            "Enabled": "True",
+            "File": "UF_NoMansSky",
+            "Last Response": "01/01/2000 00:00:00"
+        },
+        {
+            "Name": "Test_Bot",
+            "Enabled": "False",
+            "File": "NoFile",
+            "Last Response": "01/01/2000 00:00:00"
+        }
+    ],
+    "Variables": {
+        "IP": "XXXX"
+    }
 }

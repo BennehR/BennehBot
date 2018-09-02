@@ -4,3 +4,4 @@ config.json
 V3/Test.py
 *.code-workspace
 .vscode/launch.json
+*.pyc
