@@ -4,6 +4,7 @@ import urllib.request
 import requests
 import sqlite3 as lite
 from bs4 import BeautifulSoup
+from config_update_retry import update_response
 
 FacVers = []
 
@@ -75,4 +76,5 @@ async def VersionCheck(botVar):
                         printMsg('A new version has been posted to the forum.')
                         printMsg(ThreadName + " - " + ThreadSubmitted + " - " + ThreadURL)
         printMsg("UF_Fac done.")
+        update_response("Discord SubBots", "Factorio", "medium")
         await asyncio.sleep(900)

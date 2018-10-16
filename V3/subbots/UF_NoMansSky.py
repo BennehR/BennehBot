@@ -2,9 +2,11 @@ import time
 import datetime
 import urllib.request
 import requests
+import json
 import sqlite3 as lite
 from bs4 import BeautifulSoup
-import json
+from config_update_retry import update_response
+
 
 NMSVers = []
 
@@ -17,9 +19,9 @@ def get_url(url):
     return content
 
 def TelegramUpdate(updateInfo, JSONData):
-    for Users in JSONData["Tokens"]["Telegram"]["Bot Users"]:
+    for Users in JSONData["Bot Users"]:
         if Users["No Mans Sky Updates"] == "True":
-            url = "https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(JSONData["Tokens"]["Telegram"]["Bot Token"], Users["ID"], updateInfo)
+            url = "https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}".format(JSONData["Tokens"]["Telegram"], Users["ID"], updateInfo)
             printMsg(url)
             get_url(url)
 
@@ -87,6 +89,7 @@ def VersionCheck():
                     con.close()
 
         printMsg('UF_NMS done.')
+        update_response("Independant SubBots", "No_Mans_Sky", "medium")
         time.sleep(900)
 
 VersionCheck()

@@ -3,8 +3,10 @@ import json
 import subprocess
 import datetime
 import shutil
-import ip_grabber
-import uf_launch_schedule
+import config_update_retry as config_update_retry
+import ip_grabber as ip_grabber
+#from subbots.ip_grabber import get_ip
+import uf_launch_schedule as uf_launch_schedule
 from telegram.ext import Updater, CommandHandler
 from functools import wraps
 
@@ -13,6 +15,8 @@ from functools import wraps
 sub_bots_enabled = []
 screen_name_list = []
 LIST_OF_ADMINS = []
+
+
 
 #Import JSON data
 with open('config.json') as json_data:
@@ -39,7 +43,7 @@ def restricted(func):
 
 #Functions
 def get_time_difference(sub_bot):
-    bots_last_response = datetime.datetime.strptime(sub_bot["Last Response"], '%d/%m/%Y %H:%M:%S')
+    bots_last_response = datetime.datetime.strptime(sub_bot["Last Response"], '%Y-%m-%d %H:%M:%S')
     current_time = datetime.datetime.now()
     time_apart = current_time - bots_last_response
     return round(time_apart.total_seconds()/60)
@@ -78,6 +82,8 @@ for sub_bot in json_config["Independant SubBots"]:
 
 def bot_status(bot, update):
     print("Status check called")
+    with open('config.json') as json_data:
+        json_config = json.load(json_data)
     response_text = "Independant bots:"
     for sub_bot in json_config["Independant SubBots"]:
         response_text = response_text + "\n{} - Last response:{}m ago".format(sub_bot["Name"], get_time_difference(sub_bot))
@@ -88,27 +94,68 @@ def bot_status(bot, update):
     update.message.reply_text(response_text)
     print("Status reply sent")
 
+################################
+#IP_Grabber commands
 @restricted
 def get_ip(bot, update):
     print("IP request received")
     update.message.reply_text(ip_grabber.get_ip())
     print("IP Sent")
 
+def begin_ip_loop(bot, update):
+    print("Beginning IP Grabber loop in a window")
+    update.message.reply_text("Beginning IP Grabber loop in a window")
+    ip_grabber.set_enabled()
+
+def stop_ip_loop(bot, update):
+    print("Disabling IP Grabber, process will make one final check and end in the next 15 minutes.")
+    update.message.reply_text("Disabling IP Grabber, process will make one final check and end in the next 15 minutes.")
+    ip_grabber.set_disabled()
+
+################################
+#uf_launch_schdule commands
 def get_launches(bot, update):
     print("Received launch schedule request")
     update.message.reply_text(uf_launch_schedule.get_updates())
     print("Launch schedule sent")
 
+################################
+#Telegram bot commands
 def help(bot, update):
-    update.message.reply_text("/Status\n/IP\n/Launch")
+    #bot_commands = ['Status', 'IP', 'IP_Loop_Begin', 'IP_Loop_Stop', 'Launch', '?']
+    response_text = ""
+    for command in bot_commands:
+        response_text = "/{}\n{}".format(command, response_text)
+    update.message.reply_text(response_text)
 
-#logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+################################
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 updater = Updater(token=json_config["Tokens"]["Telegram"])
 
-updater.dispatcher.add_handler(CommandHandler('Status', bot_status))
+################################
+#Command handlers
+
+bot_commands = {
+    "Status" : bot_status,
+    "IP" : get_ip,
+    "IP_Loop_Begin" : begin_ip_loop,
+    "IP_Loop_Stop" : stop_ip_loop,
+    "Launch" : get_launches,
+    "Help" : help
+}
+
+for command in bot_commands:
+    updater.dispatcher.add_handler(CommandHandler(command, bot_commands[command]))
+    print("Added command {} with def {}".format(command, bot_commands[command]))
+
+""" updater.dispatcher.add_handler(CommandHandler('Status', bot_status))
+
 updater.dispatcher.add_handler(CommandHandler('IP', get_ip))
+updater.dispatcher.add_handler(CommandHandler('IP_Loop_Begin', begin_ip_loop))
+updater.dispatcher.add_handler(CommandHandler('IP_Loop_Stop', stop_ip_loop))
+
 updater.dispatcher.add_handler(CommandHandler('Launch', get_launches))
-updater.dispatcher.add_handler(CommandHandler('?', help))
+updater.dispatcher.add_handler(CommandHandler('?', help)) """
 
 updater.start_polling()
 updater.idle()
