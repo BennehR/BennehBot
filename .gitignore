@@ -6,3 +6,6 @@ V3/Test.py
 .vscode/launch.json
 *.pyc
 *.stackdump
+*.log
+V3/subbots/Test.py
+V3/subbots/Test.py

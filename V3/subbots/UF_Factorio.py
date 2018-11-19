@@ -5,8 +5,10 @@ import requests
 import sqlite3 as lite
 from bs4 import BeautifulSoup
 from config_update_retry import update_response
+import logging
 
 FacVers = []
+logging.basicConfig(filename='logs/UF_Factorio.log', level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
 
 def printMsg(msg):
     print("UF_Fac: " + str(msg))

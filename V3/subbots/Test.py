@@ -2,17 +2,21 @@ import datetime
 import time
 import json
 import subprocess
+import os.path
 #import ip_grabber
 #import urllib.request
-from config_update_retry import update_response as update_response
+#from config_update_retry import update_response as update_response
 
-subprocess.run(["screen", "-S", "IP_Grabber_Loop", "-c", "python3", "ip_grabber.py"]) 
+file_name = os.path.basename(__file__)[:-3]
+print(file_name)
+
+"""subprocess.run(["screen", "-S", "IP_Grabber_Loop", "-c", "python3", "ip_grabber.py"]) 
 
 #while True:
 #    update_response("Independant SubBots", "No Mans_Sky", "medium")
 #    time.sleep(5)
 
-"""LIST_OF_ADMINS = []
+LIST_OF_ADMINS = []
 
 with open('config.json') as json_data:
     json_config = json.load(json_data)

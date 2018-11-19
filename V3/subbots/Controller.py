@@ -129,7 +129,7 @@ def help(bot, update):
     update.message.reply_text(response_text)
 
 ################################
-logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename='logs/Controller.log', level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 updater = Updater(token=json_config["Tokens"]["Telegram"])
 
 ################################

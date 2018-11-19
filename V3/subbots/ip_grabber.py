@@ -4,10 +4,12 @@ import time
 from config_update_retry import update_response
 from requests import get
 import subprocess
+import logging
 
 with open('config.json') as json_data:
     JSONConfig = json.load(json_data)
 
+logging.basicConfig(filename='logs/IPGrabber.log', level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 current_ip = get('https://api.ipify.org').text
 existing_ip = JSONConfig["Variables"]["IP"]
 

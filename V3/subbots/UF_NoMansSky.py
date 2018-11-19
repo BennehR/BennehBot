@@ -6,8 +6,9 @@ import json
 import sqlite3 as lite
 from bs4 import BeautifulSoup
 from config_update_retry import update_response
+import logging
 
-
+logging.basicConfig(filename='logs/UF_NMS.log', level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 NMSVers = []
 
 def printMsg(msg):

@@ -2,11 +2,13 @@ import time
 import json
 import random
 from datetime import datetime
+import logging
+
+logging.basicConfig(filename='logs/Update_Retry.log', level=logging.WARNING, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 def dt_converter(o):
     if isinstance(o, datetime):
         return o.__str__()
-
 
 def update_response(bot_type, bot, priority):
     with open('config.json') as json_data:

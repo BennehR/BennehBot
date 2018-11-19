@@ -7,9 +7,12 @@ import sys
 import os
 import importlib
 import json
+import logging
 
 from discord.ext import commands
 from threading import Thread
+
+logging.basicConfig(filename='logs/BennehBot.log', level=logging.INFO, format='%(asctime)s - %(levelname)s: %(message)s')
 
 bot = commands.Bot(command_prefix='!')
 
@@ -43,5 +46,7 @@ async def on_ready():
 @bot.command(pass_context=True)
 async def hello(ctx):
     printMsg('Yo ' + ctx.author.name)
+    Channel = ctx.channel
+    await Channel.send("Hey {}".format(ctx.author.name))
 
-bot.run(d["Tokens"]["Discord"])
+bot.run(d["Tokens"]["Discord"], reconnect=True)
